@@ -9,6 +9,9 @@ import {
   Delete,
   Put,
   HttpCode,
+  Session,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { CreateUserDto } from '../dtos/create.user.dto';
@@ -17,26 +20,60 @@ import { UpdateUserDto } from '../dtos/update.user.dto';
 import { Types } from 'mongoose';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { ResponseUserDto } from '../dtos/response.user.dto';
+import { AuthService } from '../services/auth.service';
+import { LoginUserDto } from '../dtos/login.user.dto';
+import { ExceptionHandler } from 'src/common/validations/exception.handler';
+import { LoggedInUser } from '../decorators/logged-in.user.decorator';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 
 @Controller('auth')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly exceptionHandler: ExceptionHandler,
+    private readonly userService: UserService,
+    private readonly authService: AuthService,
+  ) {}
+
+  @UseGuards(AuthGuard)
+  @Serialize(ResponseUserDto)
+  @Get('whoAmI')
+  async whoami(@LoggedInUser() loggedInUser: UserDoc): Promise<UserDoc> {
+    return loggedInUser;
+  }
 
   @Serialize(ResponseUserDto)
   @Post('signup')
-  async signup(@Body() { email, ...body }: CreateUserDto): Promise<UserDoc> {
-    const emailExist: boolean = await this.userService.existsByEmail(email);
-    if (emailExist) {
-      throw new NotFoundException({
-        message: 'user.error.emailExist',
-      });
+  async signup(
+    @Body() { email, ...body }: CreateUserDto,
+    @Session() session: any,
+  ): Promise<UserDoc> {
+    try {
+      const user: UserDoc = await this.authService.signup({ email, ...body });
+      session.userId = user._id;
+      return user;
+    } catch (error) {
+      this.exceptionHandler.handle(error);
     }
+  }
 
-    const userCreated: UserDoc = await this.userService.create({
-      email,
-      ...body,
-    });
-    return userCreated;
+  @Serialize(ResponseUserDto)
+  @Post('login')
+  async login(
+    @Body() { email, password }: LoginUserDto,
+    @Session() session: any,
+  ): Promise<UserDoc> {
+    try {
+      const user: UserDoc = await this.authService.login({ email, password });
+      session.userId = user._id;
+      return user;
+    } catch (error) {
+      this.exceptionHandler.handle(error);
+    }
+  }
+
+  @Post('logout')
+  logout(@Session() session: any) {
+    session.userId = null;
   }
 
   @Serialize(ResponseUserDto)

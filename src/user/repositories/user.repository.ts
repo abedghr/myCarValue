@@ -32,6 +32,10 @@ export class UserRepository implements UserRepositoryInterface {
     return await this.userModel.findOne(find);
   }
 
+  async findAll(find: Object): Promise<UserDoc[]> {
+    return await this.userModel.find(find);
+  }
+
   async updateOne(
     filter: Object,
     body: Object,
