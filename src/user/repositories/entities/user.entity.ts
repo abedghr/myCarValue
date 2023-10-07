@@ -1,9 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CallbackWithoutResultAndOptionalError } from 'mongoose';
 import { DatabaseMongoObjectIdEntityAbstract } from 'src/common/database/abstracts/mongo/entities/database.mongo.object-id.entity.abstract';
+import { ENUM_USER_TYPES } from 'src/user/constants/types.enums';
 
 @Schema()
 export class User extends DatabaseMongoObjectIdEntityAbstract {
+  @Prop({
+    required: true,
+    type: String,
+    default: ENUM_USER_TYPES.USER
+  })
+  type: ENUM_USER_TYPES;
+  
   @Prop({
     required: true,
     type: String,

@@ -55,6 +55,7 @@ export class AuthService {
         password,
         user.password,
       );
+      
       if (!validatePassword) {
         throw new BadRequestException({
           message: 'user.error.incorrectPassword',

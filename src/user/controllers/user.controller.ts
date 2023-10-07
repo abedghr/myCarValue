@@ -10,8 +10,8 @@ import {
   Put,
   HttpCode,
   Session,
-  UnauthorizedException,
   UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { CreateUserDto } from '../dtos/create.user.dto';
@@ -108,7 +108,7 @@ export class UserController {
   }
 
   @Delete('remove')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Query('id') id: string): Promise<void> {
     await this.userService.remove(id);
     return;

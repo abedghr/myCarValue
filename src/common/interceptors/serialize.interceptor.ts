@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { Observable, map } from 'rxjs';
-import { ResponseUserDto } from '../../user/dtos/response.user.dto';
 import { ObjectId } from 'mongodb';
 import { ClassConstructorInterface } from '../interfaces/common.interfaces';
 

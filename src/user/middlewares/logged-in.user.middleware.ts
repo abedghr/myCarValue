@@ -3,23 +3,23 @@ import {
   ExecutionContext,
   Injectable,
   NestInterceptor,
+  NestMiddleware,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 
 @Injectable()
-export class LoggedInUserInterceptor implements NestInterceptor {
+export class LoggedInUserMiddleware implements NestMiddleware {
   constructor(private readonly userService: UserService) {}
-  async intercept(context: ExecutionContext, handler: CallHandler) {
-    const request = context.switchToHttp().getRequest();
-    const { userId } = request.session || {};
 
+  async use(req: any, res: any, next: (error?: any) => void) {
+    const { userId } = req.session || {};
     if (userId) {
       const loggedInUser = await this.userService.findById(userId);
       if (loggedInUser) {
-        request.loggedInUser = loggedInUser;
+        req.loggedInUser = loggedInUser;
       }
     }
 
-    return handler.handle();
+    next();
   }
 }
