@@ -40,9 +40,9 @@ export class Report extends DatabaseMongoObjectIdEntityAbstract {
 
   @Prop({
     required: true,
-    type: String,
+    type: Number,
   })
-  year: string;
+  year: number;
 
   @Prop({
     required: true,
@@ -112,28 +112,14 @@ function autoPopulateFields(fieldsToPopulate: Array<object>) {
         );
       }
     });
-
+    
     schema.post('find', async function (docs: Array<any>) {
       if (Array.isArray(docs)) {
         await Promise.all(
           docs.map(async (doc) => {
             await Promise.all(
               fieldsToPopulate.map(async (field) => {
-                await doc.populate(field).execPopulate();
-              })
-            );
-          })
-        );
-      }
-    });
-    
-    schema.post('findAll', async function (docs: Array<any>) {
-      if (Array.isArray(docs)) {
-        await Promise.all(
-          docs.map(async (doc) => {
-            await Promise.all(
-              fieldsToPopulate.map(async (field) => {
-                await doc.populate(field).execPopulate();
+                await doc.populate(field);                
               })
             );
           })

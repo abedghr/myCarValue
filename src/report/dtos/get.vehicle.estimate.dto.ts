@@ -1,13 +1,7 @@
+import { Transform } from "class-transformer";
 import { IsLatitude, IsLongitude, IsNotEmpty, IsNumber, IsString, Max, Min } from "class-validator";
-import { Types } from "mongoose";
 
-export class CreateReportDto {
-  
-  user: Types.ObjectId;
-  
-  @IsNumber()
-  @IsNotEmpty()
-  readonly price: number;
+export class GetVehicleEstimateDto {
   
   @IsString()
   @IsNotEmpty()
@@ -17,26 +11,26 @@ export class CreateReportDto {
   @IsNotEmpty()
   readonly model: string;
   
-  @IsNumber()
   @IsNotEmpty()
   @Min(1930)
   @Max(2050)
+  @Transform(({ value }) => parseInt(value))
   readonly year: number;
   
-  @IsNumber()
   @IsNotEmpty()
   @IsLongitude()
+  @Transform(({ value }) => parseFloat(value))
   readonly lng: number;
   
-  @IsNumber()
   @IsNotEmpty()
   @IsLatitude()
+  @Transform(({ value }) => parseFloat(value))
   readonly lat: number;
   
-  @IsNumber()
   @IsNotEmpty()
   @Min(0)
   @Max(1000000)
+  @Transform(({ value }) => parseInt(value))
   readonly mileage: number;
   
 }
